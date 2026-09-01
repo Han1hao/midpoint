@@ -11,18 +11,6 @@
 
 真实密码、令牌、运行日志、构建产物和业务数据不会提交到仓库。
 
-## Windows 本地启动
-
-运行环境：Node.js 22、pnpm 11、Docker Engine/Compose。
-
-1. 将 `deployment/midpoint/.env.example` 复制为 `.env`，设置随机数据库密码。
-2. 将 `portal/.env.example` 复制为 `.env.local`；一般无需修改默认本机地址。
-3. 在 `portal/` 执行 `pnpm install --frozen-lockfile` 和 `pnpm run build`。
-4. 在仓库根目录执行 `start-all.cmd`。
-5. 访问 `http://localhost:3001`。
-
-现有 Windows 本地运行方式保持不变。
-
 ## Linux 公司服务器部署
 
 公司服务器推荐使用 Ubuntu 22.04/24.04、Docker Engine/Compose、Node.js 22、pnpm 11、Python 3、systemd 与 Nginx。首次部署在仓库根目录执行：
@@ -36,7 +24,7 @@ bash deployment/linux/deploy.sh
 
 脚本会安装门户依赖、执行构建与测试、准备 Python Excel 导入环境，并启动 PostgreSQL 与 midPoint。门户随后应按 `deployment/linux/README.md` 注册为 systemd 服务，通过 Nginx 和 HTTPS 对外访问。
 
-详细步骤见 [部署说明](docs/DEPLOYMENT.md) 和 [Linux 部署说明](deployment/linux/README.md)。
+本上传仓库只提供 Linux 服务器部署方式。详细步骤见 [部署说明](docs/DEPLOYMENT.md) 和 [Linux 部署说明](deployment/linux/README.md)。
 
 ## 验证
 

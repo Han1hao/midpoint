@@ -1,35 +1,30 @@
 # 部署说明
 
-本仓库同时支持两种互不影响的运行方式：
-
-- Windows 本地运行：继续使用现有 `.cmd` 和 `.ps1` 脚本。
-- Linux 公司服务器：使用 `deployment/linux/` 下的部署脚本和服务模板。
-
-以下第 1 至第 5 节是 Windows 本地流程；Linux 生产部署见第 6 节。
+本上传仓库仅支持 Linux 公司服务器，使用 `deployment/linux/` 下的部署脚本和服务模板。
 
 ## 1. 准备配置
 
-```powershell
-Copy-Item deployment/midpoint/.env.example deployment/midpoint/.env
-Copy-Item portal/.env.example portal/.env.local
+```bash
+cp deployment/midpoint/.env.example deployment/midpoint/.env
+cp portal/.env.example portal/.env.local
 ```
 
 必须修改 `deployment/midpoint/.env` 中的 `DB_PASSWORD`。密码不得提交到 Git。
 
 ## 2. 安装和构建门户
 
-```powershell
-Set-Location portal
+```bash
+cd portal
 corepack enable
 pnpm install --frozen-lockfile
 pnpm run build
-Set-Location ..
+cd ..
 ```
 
 ## 3. 启动
 
-```powershell
-.\start-all.ps1
+```bash
+bash deployment/linux/deploy.sh
 ```
 
 门户地址：`http://localhost:3001`
@@ -38,11 +33,11 @@ midPoint 地址：`http://localhost:8080/midpoint/`
 
 ## 4. 管理员密码
 
-首次启动后，在 `deployment/midpoint/` 中使用 `reset-administrator.ps1` 设置不少于 12 位的管理员密码。不要把密码写入脚本、README、命令记录或 Git。
+首次启动后立即通过公司批准的 midPoint 管理流程修改管理员密码。不要把密码写入脚本、README、命令记录或 Git。
 
 ## 5. 停止与备份
 
-使用 `deployment/midpoint/stop.cmd` 停止容器。普通的 `docker compose down` 不删除命名卷；除非已完成备份并明确需要清空数据，否则禁止执行 `docker compose down -v`。
+在 `deployment/midpoint/` 中使用 `docker compose stop` 停止容器。普通的 `docker compose down` 不删除命名卷；除非已完成备份并明确需要清空数据，否则禁止执行 `docker compose down -v`。
 
 业务数据备份应同时覆盖：
 

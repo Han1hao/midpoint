@@ -1,6 +1,6 @@
 # Linux 公司服务器部署
 
-本流程面向 Ubuntu 22.04/24.04。Windows 本地运行仍使用仓库根目录现有的 `start-all.cmd` 或 `start-all.ps1`，不受本目录影响。
+本流程面向 Ubuntu 22.04/24.04。本上传仓库仅提供 Linux 服务器部署方式。
 
 ## 1. 服务器依赖
 

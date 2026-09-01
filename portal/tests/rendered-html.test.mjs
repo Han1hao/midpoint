@@ -75,19 +75,23 @@ test("midPoint roles drive distinct portal permissions", async () => {
   assert.match(views, /分级权限控制/);
 });
 
-test("local deployment assets use fixed ports and include a production API proxy", async () => {
-  const [route, startPortal, localServer] = await Promise.all([
+test("Linux deployment assets use fixed local ports and include a production API proxy", async () => {
+  const [route, deploy, service, nginx, localServer] = await Promise.all([
     readFile(new URL("../app/directus-api/[...path]/route.ts", import.meta.url), "utf8"),
-    readFile(new URL("../start-portal.ps1", import.meta.url), "utf8"),
+    readFile(new URL("../../deployment/linux/deploy.sh", import.meta.url), "utf8"),
+    readFile(new URL("../../deployment/linux/identity-governance-portal.service.example", import.meta.url), "utf8"),
+    readFile(new URL("../../deployment/linux/nginx.conf.example", import.meta.url), "utf8"),
     readFile(new URL("../scripts/local-server.mjs", import.meta.url), "utf8"),
   ]);
   assert.match(route, /DIRECTUS_INTERNAL_URL/);
   assert.match(route, /127\.0\.0\.1:8055/);
-  assert.match(startPortal, /local-server\.mjs/);
+  assert.match(deploy, /docker compose up -d/);
+  assert.match(service, /scripts\/local-server\.mjs/);
+  assert.match(nginx, /proxy_pass http:\/\/127\.0\.0\.1:3001/);
   assert.match(localServer, /process\.env\.PORT \|\| 3001/);
   assert.match(localServer, /LOCAL_BACKEND_PORT \|\| 3005/);
   assert.match(localServer, /no-store, no-cache, must-revalidate/);
-  assert.doesNotMatch(startPortal, /C:\\Users\\fantuan/);
+  assert.doesNotMatch(deploy + service + nginx, /C:\\Users\\fantuan|\.ps1|\.cmd/);
   await access(new URL("../.env.example", import.meta.url));
 });
 
