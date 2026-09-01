@@ -6,11 +6,12 @@
 
 - `portal/`：门户前端、服务端接口、数据库结构和测试。
 - `deployment/midpoint/`：midPoint 与 PostgreSQL 的 Docker Compose 配置。
+- `deployment/linux/`：公司 Linux 服务器部署、systemd 与 Nginx 模板。
 - `docs/`：部署和仓库安全说明。
 
 真实密码、令牌、运行日志、构建产物和业务数据不会提交到仓库。
 
-## 本地启动
+## Windows 本地启动
 
 运行环境：Node.js 22、pnpm 11、Docker Engine/Compose。
 
@@ -20,7 +21,22 @@
 4. 在仓库根目录执行 `start-all.cmd`。
 5. 访问 `http://localhost:3001`。
 
-详细步骤见 [部署说明](docs/DEPLOYMENT.md)。
+现有 Windows 本地运行方式保持不变。
+
+## Linux 公司服务器部署
+
+公司服务器推荐使用 Ubuntu 22.04/24.04、Docker Engine/Compose、Node.js 22、pnpm 11、Python 3、systemd 与 Nginx。首次部署在仓库根目录执行：
+
+```bash
+cp deployment/midpoint/.env.example deployment/midpoint/.env
+cp portal/.env.example portal/.env.local
+# 修改 deployment/midpoint/.env 中的 DB_PASSWORD 后执行
+bash deployment/linux/deploy.sh
+```
+
+脚本会安装门户依赖、执行构建与测试、准备 Python Excel 导入环境，并启动 PostgreSQL 与 midPoint。门户随后应按 `deployment/linux/README.md` 注册为 systemd 服务，通过 Nginx 和 HTTPS 对外访问。
+
+详细步骤见 [部署说明](docs/DEPLOYMENT.md) 和 [Linux 部署说明](deployment/linux/README.md)。
 
 ## 验证
 
@@ -37,4 +53,3 @@ pnpm run test
 - `portal/data/*.json` 属于运行数据，不进入 Git。
 - PostgreSQL 和 midPoint 数据保存在 Docker 命名卷中，不进入 Git。
 - 正式环境密钥应由公司的密钥管理系统或 CI/CD 变量注入。
-

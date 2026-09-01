@@ -1,0 +1,20 @@
+[Unit]
+Description=IT Identity Governance Portal
+After=network-online.target docker.service
+Wants=network-online.target
+Requires=docker.service
+
+[Service]
+Type=simple
+User=identity-governance
+Group=identity-governance
+WorkingDirectory=/opt/identity-governance/app/portal
+Environment=NODE_ENV=production
+ExecStart=/usr/bin/env node scripts/local-server.mjs
+Restart=always
+RestartSec=5
+NoNewPrivileges=true
+PrivateTmp=true
+
+[Install]
+WantedBy=multi-user.target
