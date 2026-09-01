@@ -1,0 +1,84 @@
+name: midpoint-local
+
+services:
+  db:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:${POSTGRES_PORT:-5432}:5432"
+    environment:
+      POSTGRES_DB: midpoint
+      POSTGRES_USER: midpoint
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_INITDB_ARGS: --lc-collate=C --lc-ctype=C
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U midpoint -d midpoint"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+    volumes:
+      - midpoint_db:/var/lib/postgresql/data
+    networks: [midpoint_net]
+
+  data-init:
+    image: evolveum/midpoint:${MIDPOINT_VERSION:-latest}-alpine
+    depends_on:
+      db:
+        condition: service_healthy
+    command: >-
+      bash -c "cd /opt/midpoint &&
+      bin/midpoint.sh init-native &&
+      bin/ninja.sh -B info >/dev/null 2>/tmp/ninja.log;
+      if grep -q ERROR /tmp/ninja.log; then
+        bin/ninja.sh run-sql --create --mode REPOSITORY &&
+        bin/ninja.sh run-sql --create --mode AUDIT;
+      else
+        echo 'Repository initialization is not needed.';
+      fi"
+    environment:
+      MP_SET_midpoint_repository_jdbcUsername: midpoint
+      MP_SET_midpoint_repository_jdbcPassword: ${DB_PASSWORD}
+      MP_SET_midpoint_repository_jdbcUrl: jdbc:postgresql://db:5432/midpoint
+      MP_SET_midpoint_repository_database: postgresql
+      MP_INIT_CFG: /opt/midpoint/var
+    volumes:
+      - midpoint_home:/opt/midpoint/var
+    networks: [midpoint_net]
+
+  midpoint:
+    image: evolveum/midpoint:${MIDPOINT_VERSION:-latest}-alpine
+    restart: unless-stopped
+    depends_on:
+      data-init:
+        condition: service_completed_successfully
+      db:
+        condition: service_healthy
+    command: ["/opt/midpoint/bin/midpoint.sh", "container"]
+    environment:
+      MP_SET_midpoint_repository_jdbcUsername: midpoint
+      MP_SET_midpoint_repository_jdbcPassword: ${DB_PASSWORD}
+      MP_SET_midpoint_repository_jdbcUrl: jdbc:postgresql://db:5432/midpoint
+      MP_SET_midpoint_repository_database: postgresql
+      MP_UNSET_midpoint_repository_hibernateHbm2ddl: "1"
+      MP_NO_ENV_COMPAT: "1"
+      MP_SET_server_servlet_session_timeout: 30m
+    ports:
+      - "127.0.0.1:${MIDPOINT_PORT:-8080}:8080"
+    healthcheck:
+      test: ["CMD-SHELL", "wget -q --spider http://localhost:8080/midpoint/ || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 30
+      start_period: 60s
+    volumes:
+      - midpoint_home:/opt/midpoint/var
+      - ./import:/opt/midpoint/var/import
+    networks: [midpoint_net]
+
+networks:
+  midpoint_net:
+    driver: bridge
+
+volumes:
+  midpoint_db:
+  midpoint_home:

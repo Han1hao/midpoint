@@ -1,0 +1,2 @@
+employeeNumber,name,department,title,manager,status,email
+E0001,示例员工,技术部,开发工程师,E0000,active,user@example.com

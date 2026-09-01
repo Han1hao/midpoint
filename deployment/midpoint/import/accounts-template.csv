@@ -1,0 +1,2 @@
+applicationCode,accountId,loginName,accountType,ownerEmployeeNumber,status,entitlement,lastLogin
+GITLAB,10001,user@example.com,personal,E0001,enabled,developer,2026-08-18T09:00:00+08:00

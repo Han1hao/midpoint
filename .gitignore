@@ -1,0 +1,35 @@
+# Dependencies and build output
+node_modules/
+dist/
+/build/
+.next/
+.wrangler/
+coverage/
+.tmp/
+
+# Local environment and credentials
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.p12
+*.pfx
+
+# Runtime data, logs, and local results
+*.log
+*.pid
+portal/data/*.json
+!portal/data/*.example.json
+portal/public/assets/
+deployment/midpoint/reset-result.json
+backups/
+*.backup
+*.bak
+
+# Editor and operating-system files
+.idea/
+.vscode/
+.DS_Store
+Thumbs.db
+desktop.ini
